@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+  schedule:
+    - cron: '0 1 * * TUE'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: docker/setup-qemu-action@v1
+        name: Setup QEmu
+      - uses: docker/setup-buildx-action@v1
+        name: Setup Docker Buildx
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+      - uses: docker/build-push-action@v2
+        name: Build & Push
+        with:
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/matthewbaggett/bbrun:latest
